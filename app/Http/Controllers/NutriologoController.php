@@ -47,6 +47,17 @@ class NutriologoController extends Controller
         return view('nutriologos.edit', compact('nutriologo'));
     }
 
+    public function perfil() {
+    // Buscamos el nutriólogo que está logueado actualmente
+    $nutriologo = Nutriologo::with('user')->where('usuario_id', auth()->id())->first();
+
+    if (!$nutriologo) {
+        return redirect('/')->with('error', 'No se encontró el perfil del nutriólogo.');
+    }
+
+    return view('nutriologos.perfil', compact('nutriologo'));
+    }
+
     // Actualizar (Modificar) - Guarda los cambios en la BD
     public function update(Request $request, $id)
     {
