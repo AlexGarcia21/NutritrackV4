@@ -76,7 +76,13 @@ class NutriologoController extends Controller
             'foto_url' => $request->foto_url,
         ]);
 
-        return redirect()->route('nutriologos.index')->with('success', 'Nutriólogo actualizado con éxito');
+        return redirect()->route('perfil')->with('success', 'Nutriólogo actualizado con éxito');
+    }
+
+    public function gestionarPagos() 
+    {
+        // Aquí podrías pasar una lista de pagos reales de la DB
+        return view('pagos.index'); 
     }
 
     // Eliminar

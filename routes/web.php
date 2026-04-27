@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\PageController; 
 use App\Http\Controllers\NutriologoController;
 use App\Http\Controllers\AuthController; 
@@ -31,4 +32,26 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('nutriologos', NutriologoController::class);
     Route::resource('pacientes', PacienteController::class);
 });
+
+
+//Rutas del dashboard
+Route::get('/dashboard', function () {
+    // Obtenemos al usuario logueado y su relación con la tabla de nutriólogos
+    $nutriologo = Auth::user()->nutriologo; 
+
+    return view('dashboard', compact('nutriologo'));
+})->middleware(['auth'])->name('dashboard');
+
+//ruta para ver al paciente 
+Route::get('/pacientes/{id}', [PacienteController::class, 'show'])->name('pacientes.show');
+
+//--RUTAS DEL SIDEBAR--
+
+//agenda
+Route::get('/agenda', [PacienteController::class, 'agenda'])->name('agenda');
+Route::get('/planificador', [PacienteController::class, 'planificador'])->name('planificador');
+
+//pagos
+Route::get('/gestion-pagos', [App\Http\Controllers\NutriologoController::class, 'gestionarPagos'])->name('pagos');
+
 
