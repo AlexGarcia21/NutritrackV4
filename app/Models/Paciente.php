@@ -28,8 +28,8 @@ class Paciente extends Model
         return $this->belongsTo(Nutriologo::class, 'nutriologo_id', 'usuario_id');
     }
 
-    public function metricas() {
-        return $this->hasMany(Metrica::class, 'paciente_id', 'usuario_id');
+    public function metricas() { 
+        return $this->hasMany(Metrica::class, 'paciente_id', 'usuario_id'); 
     }
 
     public function dietas() {

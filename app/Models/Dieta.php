@@ -11,6 +11,7 @@ class Dieta extends Model
 
     protected $fillable = [
         'nutriologo_id',
+        'paciente_id',
         'fechaInicio',
         'fechaFin',
         'descripcion',

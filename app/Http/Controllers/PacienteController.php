@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Paciente;
+use App\Models\Cita;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
@@ -41,14 +42,17 @@ class PacienteController extends Controller
     }
 
     public function show($id) {
-        // Buscamos el paciente asegurándonos de que pertenezca al nutriólogo logueado
-        // Cargamos la relación 'user' para tener el nombre y correo
-        $paciente = Paciente::with('user')
-            ->where('usuario_id', $id)
-            ->where('nutriologo_id', Auth::id()) 
-            ->firstOrFail();
+        // Traemos al paciente y TODAS sus métricas ordenadas por fecha
+        $paciente = Paciente::with(['user', 'metricas'])
+        ->where('usuario_id', $id)
+        ->where('nutriologo_id', Auth::id()) 
+        ->firstOrFail();
 
-        return view('pacientes.show', compact('paciente'));
+        // Esto te servirá para la gráfica de progreso que mencionamos en el MVP
+        $historicoPeso = $paciente->metricas->pluck('peso');
+        $fechas = $paciente->metricas->pluck('fecha');
+
+        return view('pacientes.show', compact('paciente', 'historicoPeso', 'fechas'));
     }
 
     public function edit($id) {
@@ -69,8 +73,29 @@ class PacienteController extends Controller
     //función para la agenda del nutriologo y crear una nueva cita
     public function agenda() {
         $nutriologo = Auth::user()->nutriologo;
-        // Aquí podrías traer las citas de la base de datos después
-        return view('agenda.index', compact('nutriologo'));
+        // Traemos las citas del nutriólogo con el nombre del paciente
+        $citas = \App\Models\Cita::where('nutriologo_id', Auth::id())
+                    ->with('paciente.user')
+                    ->orderBy('fecha_hora', 'asc')
+                    ->get();
+
+        return view('agenda.index', compact('nutriologo', 'citas'));
+    }
+
+    //funcion para guardar citas
+    public function guardarCita(Request $request) {
+        // Unimos fecha y hora en un solo campo para la DB
+        $fecha_hora = $request->fecha . ' ' . $request->hora;
+
+        \App\Models\Cita::create([
+            'nutriologo_id' => Auth::id(),
+            'paciente_id' => $request->paciente_id,
+            'fecha_hora' => $fecha_hora,
+            'motivo' => $request->motivo,
+            'estado' => $request->estado,
+        ]);
+
+        return redirect()->route('agenda')->with('success', 'Cita agendada correctamente');
     }
 
     public function planificador() 

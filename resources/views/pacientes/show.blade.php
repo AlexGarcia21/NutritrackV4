@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Expediente - {{ $paciente->user->nombre }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!--Liberia para gráfica de barras-->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body class="bg-gray-100 flex h-screen overflow-hidden">
@@ -64,7 +66,7 @@
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm text-center">
                     <p class="text-xs font-bold text-gray-400 uppercase">Peso Actual</p>
-                    <p class="text-2xl font-black text-gray-800">63.5 <span class="text-sm font-normal text-gray-400">kg</span></p>
+                    <p class="text-2xl font-black text-gray-800">56.0 <span class="text-sm font-normal text-gray-400">kg</span></p>
                 </div>
                 <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm text-center">
                     <p class="text-xs font-bold text-gray-400 uppercase">IMC</p>
@@ -104,11 +106,30 @@
                     </div>
                 </div>
 
-                <div class="lg:col-span-2 bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
-                    <div class="p-6 border-b border-gray-50 flex justify-between items-center">
+                <div class="lg:col-span-2 space-y-6">
+    <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="font-bold text-gray-800 flex items-center">
+                <i class="fa-solid fa-chart-line mr-2 text-green-600"></i> Curva de Progreso
+            </h3>
+            <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Peso (kg) vs Tiempo</span>
+        </div>
+        <div class="h-64">
+            <canvas id="progresoChart"></canvas>
+        </div>
+    </div>
+
+            <div class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+                <div class="p-6 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
+                    <div>
                         <h3 class="font-bold text-gray-800">Historial de Mediciones</h3>
-                        <span class="text-xs text-gray-400">Última actualización: Ayer</span>
+                        <p class="text-[10px] text-gray-400 font-bold uppercase">Seguimiento Antropométrico</p>
                     </div>
+                    <button onclick="openMetricaModal()" class="flex items-center space-x-2 bg-green-600 text-white px-4 py-2 rounded-xl font-bold text-xs hover:bg-green-700 transition shadow-md">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>Registrar Avance</span>
+                    </button>
+                </div>
                     <div class="p-6">
                         <table class="w-full text-left">
                             <thead class="text-xs font-bold text-gray-400 uppercase tracking-widest border-b border-gray-50">
@@ -116,29 +137,66 @@
                                     <th class="py-3">Fecha</th>
                                     <th class="py-3 text-center">Peso</th>
                                     <th class="py-3 text-center">Grasa %</th>
-                                    <th class="py-3 text-right">Nota</th>
+                                    <th class="py-3 text-right">IMC</th>
                                 </tr>
                             </thead>
                             <tbody class="text-sm text-gray-600 divide-y divide-gray-50">
-                                <tr>
-                                    <td class="py-4">20 Abr 2026</td>
-                                    <td class="py-4 text-center font-bold">63.5 kg</td>
-                                    <td class="py-4 text-center">18.2%</td>
-                                    <td class="py-4 text-right italic text-gray-400">Muy buena adherencia</td>
+                                @foreach($paciente->metricas->sortByDesc('fecha') as $metrica)
+                                <tr class="hover:bg-gray-50/50 transition">
+                                    <td class="py-4 font-medium">{{ \Carbon\Carbon::parse($metrica->fecha)->format('d M Y') }}</td>
+                                    <td class="py-4 text-center font-bold text-gray-800">{{ $metrica->peso }} kg</td>
+                                    <td class="py-4 text-center text-orange-600 font-semibold">{{ $metrica->grasaCorporal }}%</td>
+                                    <td class="py-4 text-right text-blue-600 font-bold">{{ $metrica->imc }}</td>
                                 </tr>
-                                <tr>
-                                    <td class="py-4">20 Mar 2026</td>
-                                    <td class="py-4 text-center font-bold">60.2 kg</td>
-                                    <td class="py-4 text-center">20.5%</td>
-                                    <td class="py-4 text-right italic text-gray-400">Inicio de plan</td>
-                                </tr>
+                                @endforeach
                             </tbody>
-                        </table>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </main>
+
+    <div id="metricaModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden">
+            <div class="p-5 border-b border-gray-100 flex justify-between items-center bg-green-50">
+                <h3 class="font-bold text-green-800 text-sm italic">Registrar Nueva Métrica</h3>
+                <button onclick="closeMetricaModal()" class="text-gray-400 hover:text-red-500"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <form action="{{ route('metricas.store') }}" method="POST" class="p-6 space-y-4">
+                @csrf
+                <input type="hidden" name="paciente_id" value="{{ $paciente->usuario_id }}">
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-400 uppercase">Fecha de Toma</label>
+                        <input type="date" name="fecha" value="{{ date('Y-m-d') }}" class="w-full mt-1 p-3 bg-gray-50 border border-gray-100 rounded-xl text-sm outline-none">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-400 uppercase">Peso (kg)</label>
+                        <input type="number" step="0.01" name="peso" placeholder="56.0" class="w-full mt-1 p-3 bg-gray-50 border border-gray-100 rounded-xl text-sm outline-none">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-400 uppercase">% Grasa Corporal</label>
+                        <input type="number" step="0.1" name="grasa" placeholder="22.5" class="w-full mt-1 p-3 bg-gray-50 border border-gray-100 rounded-xl text-sm outline-none">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-400 uppercase">IMC (Calculado)</label>
+                        <input type="number" step="0.01" name="imc" placeholder="22.4" class="w-full mt-1 p-3 bg-gray-100 border border-gray-100 rounded-xl text-sm outline-none" readonly>
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full bg-green-600 text-white py-3 rounded-2xl font-bold shadow-lg hover:bg-green-700 transition">
+                    Guardar Progreso
+                </button>
+            </form>
+        </div>
+    </div>
 
 
     <div id="citaModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -179,26 +237,72 @@
                 </select>
             </div>
 
-            <button type="submit" class="w-full bg-green-600 text-white py-4 rounded-2xl font-bold shadow-lg hover:bg-green-700 transition transform hover:scale-[1.02] mt-4">
-                Confirmar Cita para {{ explode(' ', $paciente->user->nombre)[0] }}
-            </button>
-        </form>
+                <button type="submit" class="w-full bg-green-600 text-white py-4 rounded-2xl font-bold shadow-lg hover:bg-green-700 transition transform hover:scale-[1.02] mt-4">
+                    Confirmar Cita para {{ explode(' ', $paciente->user->nombre)[0] }}
+                </button>
+            </form>
+        </div>
     </div>
-</div>
 
     <script>
-    function openModal() {
-        document.getElementById('citaModal').classList.remove('hidden');
-    }
+        function openModal() {
+            document.getElementById('citaModal').classList.remove('hidden');
+        }
 
-    function closeModal() {
-        document.getElementById('citaModal').classList.add('hidden');
-    }
+        function closeModal() {
+            document.getElementById('citaModal').classList.add('hidden');
+        }
 
-    // EXTRA: Cerrar el modal si se presiona la tecla Escape
-    document.addEventListener('keydown', (e) => {
-        if (e.key === "Escape") closeModal();
+        // EXTRA: Cerrar el modal si se presiona la tecla Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === "Escape") closeModal();
+        });
+
+        function openMetricaModal() { document.getElementById('metricaModal').classList.remove('hidden'); }
+        function closeMetricaModal() { document.getElementById('metricaModal').classList.add('hidden'); }
+
+        //gárica para ver el rpoceso del paciente con javascript
+        document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('progresoChart').getContext('2d');
+        
+        // Obtenemos los datos pasados desde el controlador
+        const etiquetas = @json($fechas->map(fn($f) => \Carbon\Carbon::parse($f)->format('d M')));
+        const datosPeso = @json($historicoPeso);
+
+        new Chart(ctx, {
+            type: 'line', // 'line' se ve más profesional para progreso que barras
+            data: {
+                labels: etiquetas,
+                datasets: [{
+                    label: 'Peso del Paciente',
+                    data: datosPeso,
+                    borderColor: '#16a34a', // Verde de NutriTrack
+                    backgroundColor: 'rgba(22, 163, 74, 0.1)',
+                    borderWidth: 3,
+                    tension: 0.4, // Curva suave
+                    fill: true,
+                    pointBackgroundColor: '#16a34a',
+                    pointRadius: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        grid: { display: false }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
     });
-</script>
+    </script>
 </body>
 </html>
