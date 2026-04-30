@@ -39,7 +39,7 @@ Route::middleware(['auth'])->group(function () {
     // Gestión de Pacientes (CRUD)
     Route::resource('pacientes', PacienteController::class);
     // Sobreescribimos la ruta show para asegurar el ID
-    Route::get('/pacientes/{id}', [PacienteController::class, 'show'])->name('pacientes.show');
+    //Route::get('/pacientes/{id}', [PacienteController::class, 'show'])->name('pacientes.show');
 
     // Herramientas del Nutriólogo
     Route::get('/agenda', [PacienteController::class, 'agenda'])->name('agenda');
