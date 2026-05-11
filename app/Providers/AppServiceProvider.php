@@ -19,6 +19,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Esto corre las migraciones automáticamente cada vez que alguien entra a la página
+        if (config('app.env') === 'production') {
+            \Illuminate\Support\Facades\Artisan::call('migrate --force');
+        }
     }
 }
