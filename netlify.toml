@@ -1,5 +1,5 @@
 [build]
-  command = "composer install --no-dev --optimize-autoloader"
+  command = "composer install --no-dev --optimize-autoloader --no-scripts"
   publish = "public"
 
 [functions]
