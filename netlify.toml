@@ -6,7 +6,7 @@
   directory = "netlify/functions"
 
 [[redirects]]
-  from = "/*"
-  to = "/.netlify/functions/index"
+ from = "/*"
+  to = "/.netlify/functions/hello" # <--- Cambiamos index por hello
   status = 200
   force = true
