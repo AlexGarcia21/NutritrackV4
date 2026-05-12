@@ -8,6 +8,9 @@ use App\Http\Controllers\NutriologoController;
 use App\Http\Controllers\PacienteController;
 use App\Http\Controllers\MetricaController;
 use App\Http\Controllers\DietaController;
+use Illuminate\Support\Facades\Mail;
+
+
 
 // --- RUTAS PÚBLICAS ---
 Route::get('/', function () { return view('welcome'); });
@@ -62,4 +65,15 @@ Route::middleware(['auth'])->group(function () {
         return back()->with('success', '¡Cita marcada como completada!');
     })->name('citas.update');
 
+
+    Route::get('/test-mail', function () {
+    try {
+        Mail::raw('¡NutriTrack reportándose! Si ves esto, el SMTP ya funciona.', function ($message) {
+            $message->to('test@ejemplo.com')->subject('Prueba Final');
+        });
+        return "¡Éxito! El correo ya debe estar en Mailtrap.";
+    } catch (\Exception $e) {
+        return "Error: " . $e->getMessage();
+    }
+});
 });

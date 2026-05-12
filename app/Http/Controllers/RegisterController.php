@@ -7,7 +7,8 @@ use App\Models\Nutriologo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
-
+use Illuminate\Support\Facades\Mail;
+use App\Mail\BienvenidaMail;
 class RegisterController extends Controller
 {
     // Muestra la vista con Tailwind
@@ -20,7 +21,7 @@ class RegisterController extends Controller
     public function store(Request $request)
     {
         // 1. Crear el registro en la tabla 'users'
-        $user = User::create([
+        $user = User::create([              
             'nombre' => $request->nombre,
             'correo' => $request->correo,
             'contrasena' => Hash::make($request->password),
@@ -34,6 +35,8 @@ class RegisterController extends Controller
             'especialidad' => $request->especialidad,
             'foto_url' => $request->foto_url,
         ]);
+
+        Mail::to($user->correo)->send(new BienvenidaMail($user));
 
         // 3. Iniciar sesión y mandar al perfil
         Auth::login($user);
