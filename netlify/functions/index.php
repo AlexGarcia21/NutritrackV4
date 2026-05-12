@@ -1,4 +1,7 @@
 <?php
+// Esto le dice a Netlify: "No descargues, muestra una página web"
+header('Content-Type: text/html; charset=utf-8');
+
 require __DIR__ . '/../../vendor/autoload.php';
 $app = require_once __DIR__ . '/../../bootstrap/app.php';
 
