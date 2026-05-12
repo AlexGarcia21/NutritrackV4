@@ -3,7 +3,8 @@
   publish = "public"
 
 [functions]
-  included_files = ["app/**", "config/**", "database/**", "resources/**", "routes/**", "vendor/**", ".env"]
+  directory = "netlify/functions"
+  included_files = ["app/**", "config/**", "database/**", "resources/**", "routes/**", "vendor/**", ".env", "bootstrap/**"]
 
 [[redirects]]
   from = "/*"
