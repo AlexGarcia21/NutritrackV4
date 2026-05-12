@@ -34,12 +34,21 @@ class BienvenidaMail extends Mailable
     /**
      * Get the message content definition.
      */
+<<<<<<< HEAD
    public function content(): Content
 {
     return new Content(
         view: 'emails.bienvenida', // Aquí le dices que use el archivo que acabas de crear
     );
 }
+=======
+    public function content(): Content
+    {
+        return new Content(
+            view: 'emails.bienvenida',
+        );
+    }
+>>>>>>> 876a029008378342a458f6c8defccf2fdb6b52a3
 
     /**
      * Get the attachments for the message.
