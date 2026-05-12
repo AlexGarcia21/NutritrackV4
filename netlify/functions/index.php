@@ -6,7 +6,7 @@ header('Content-Type: text/html; charset=utf-8');
 require __DIR__ . '/../../vendor/autoload.php';
 
 // Iniciamos la aplicación Laravel
-$app = require_once __DIR__ . '/../../bootstrap/app.php';
+$app = require __DIR__ . '/../../bootstrap/app.php';
 
 $kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
 
