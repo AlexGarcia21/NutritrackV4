@@ -3,11 +3,10 @@
   publish = "public"
 
 [functions]
-  # Esto asegura que Laravel tenga todas sus piezas en la nube
   included_files = ["app/**", "config/**", "database/**", "resources/**", "routes/**", "vendor/**", ".env"]
 
 [[redirects]]
   from = "/*"
   to = "/.netlify/functions/index"
   status = 200
-  force = true # <--- ESTO ES LO QUE FALTA. Obliga a Netlify a ignorar el archivo y usar la función.
+  force = true
