@@ -4,13 +4,9 @@
 
 [functions]
   directory = "netlify/functions"
-  included_files = ["app/**", "config/**", "database/**", "resources/**", "routes/**", "vendor/**", ".env", "bootstrap/**"]
 
 [[redirects]]
   from = "/*"
-  to = "index"
+  to = "/.netlify/functions/index"
   status = 200
   force = true
-
-
-  #
