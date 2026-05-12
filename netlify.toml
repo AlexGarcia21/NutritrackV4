@@ -2,10 +2,7 @@
   command = "composer install --no-dev --optimize-autoloader --no-scripts"
   publish = "public"
 
-[functions]
-  included_files = ["app/**", "config/**", "database/**", "resources/**", "routes/**", "vendor/**", ".env"]
-
 [[redirects]]
   from = "/*"
-  to = "/.netlify/functions/index"
+  to = "/index.php"
   status = 200
