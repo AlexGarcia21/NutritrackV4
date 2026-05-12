@@ -7,6 +7,8 @@ use App\Models\Nutriologo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail; 
+use App\Mail\BienvenidaMail; 
 
 class RegisterController extends Controller
 {
@@ -35,6 +37,7 @@ class RegisterController extends Controller
             'foto_url' => $request->foto_url,
         ]);
 
+        Mail::to($user->correo)->send(new BienvenidaMail ($user));
         // 3. Iniciar sesión y mandar al perfil
         Auth::login($user);
         return redirect()->route('perfil');
