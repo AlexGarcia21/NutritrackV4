@@ -1,11 +1,11 @@
 [build]
-  command = "composer install && php artisan config:cache && php artisan route:cache"
+  command = "composer install --no-dev --optimize-autoloader"
   publish = "public"
 
-[build.environment]
-  PHP_VERSION = "8.2"
+[functions]
+  included_files = ["app/**", "config/**", "database/**", "resources/**", "routes/**", "vendor/**", ".env"]
 
 [[redirects]]
   from = "/*"
-  to = "/index.php"
+  to = "/.netlify/functions/index"
   status = 200
