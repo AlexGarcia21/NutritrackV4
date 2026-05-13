@@ -13,12 +13,14 @@ class BienvenidaMail extends Mailable
 {
     use Queueable, SerializesModels;
 
+    public $user;
+
     /**
      * Create a new message instance.
      */
-    public function __construct()
+    public function __construct($user)
     {
-        //
+        $this->user = $user;
     }
 
     /**
@@ -27,33 +29,22 @@ class BienvenidaMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Bienvenida Mail',
+            subject: '¡Bienvenido a NutriTrack!',
         );
     }
 
     /**
      * Get the message content definition.
      */
-<<<<<<< HEAD
-   public function content(): Content
-{
-    return new Content(
-        view: 'emails.bienvenida', // Aquí le dices que use el archivo que acabas de crear
-    );
-}
-=======
     public function content(): Content
     {
         return new Content(
             view: 'emails.bienvenida',
         );
     }
->>>>>>> 876a029008378342a458f6c8defccf2fdb6b52a3
 
     /**
      * Get the attachments for the message.
-     *
-     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
      */
     public function attachments(): array
     {
