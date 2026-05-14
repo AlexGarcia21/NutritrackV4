@@ -30,6 +30,7 @@ class RegisterController extends Controller
         ]);
 
         // 2. Crear el perfil en la tabla 'nutriologos'
+        // 2. Crear el perfil en la tabla 'nutriologos'
         Nutriologo::create([
             'usuario_id' => $user->id,
             'cedulaProfesional' => $request->cedula,
@@ -37,8 +38,13 @@ class RegisterController extends Controller
             'foto_url' => $request->foto_url,
         ]);
 
-        // Enviar correo de bienvenida
-        Mail::to($user->correo)->send(new BienvenidaMail($user));
+        // Enviar correo de bienvenida con PARACAÍDAS
+        try {
+            Mail::to($user->correo)->send(new BienvenidaMail($user));
+        } catch (\Exception $e) {
+            // Si el mail falla, Laravel lo anota en el log, pero NO detiene el registro
+            \Log::error("Error de Mailtrap: " . $e->getMessage());
+        }
 
         // 3. Iniciar sesión y mandar al perfil
         Auth::login($user);
